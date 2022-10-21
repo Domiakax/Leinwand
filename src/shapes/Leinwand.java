@@ -32,6 +32,8 @@ public class Leinwand extends JFrame{
 	private static final String kreisClassName = "Kreis";
 //	private final String dreieckClassName = "Dreieck";
 	
+	private static final int offsetCoordinateSystem = 4;
+	private static final int distanceAxis = 100;
 	
 	private static final String unbekannteFigurException = "Unbekannte Figur, Schreibweise der Klasse überprüfen.";
 
@@ -49,7 +51,7 @@ public class Leinwand extends JFrame{
 	
 	
 	public Leinwand() {
-		this("Zeichnung", 600, 600);
+		this("Zeichnung", 650, 550);
 	}
 	
 	private Color stringToColor(String farbname)    {
@@ -218,15 +220,40 @@ public class Leinwand extends JFrame{
 		@Override
 		public void paintComponent(Graphics g) {
 			Graphics2D g2d = (Graphics2D) g;
-			
 			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			g2d.setColor(Color.white);
 			g2d.fillRect(0, 0, getWidth(), getHeight());
+			drawCoordinateSystem(g2d);
 			synchronized (figuren) {
 				for(Object figur : figuren) {
 					figurZuShape.get(figur).draw(g2d);
 				}
 			}
+		}
+
+		private void drawCoordinateSystem(Graphics2D g2d) {
+			int hoehe = this.getHeight();
+			int breite = this.getWidth();
+			g2d.setColor(Color.BLACK);
+			g2d.drawLine(offsetCoordinateSystem, offsetCoordinateSystem, offsetCoordinateSystem, hoehe);
+			g2d.drawLine(offsetCoordinateSystem, offsetCoordinateSystem, breite, offsetCoordinateSystem);
+
+			int numberXlines = breite / distanceAxis;
+			for(int i = 1; i<= numberXlines; i++) {
+				int xPosition = i*distanceAxis;
+				g2d.drawLine(xPosition, 0, xPosition, 2*offsetCoordinateSystem);
+				String number = xPosition + "";
+				g2d.drawString(number, xPosition-2*offsetCoordinateSystem, 5*offsetCoordinateSystem);
+			}
+			
+			int numberYLines = hoehe / distanceAxis;
+			for(int i = 1;i<= numberYLines; i++) {
+				int yPosition = i*distanceAxis;
+				g2d.drawLine(0, yPosition, 2*offsetCoordinateSystem, yPosition);
+				String number = yPosition + "";
+				g2d.drawString(number, 4*offsetCoordinateSystem, yPosition+offsetCoordinateSystem);
+			}
+			
 		}
 	}
 }
