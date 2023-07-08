@@ -34,6 +34,7 @@ public class Leinwand extends JFrame{
 	
 	private static final int offsetCoordinateSystem = 4;
 	private static final int distanceAxis = 100;
+	private boolean drawWithCoordinateSystem = true;
 	
 	private static final String unbekannteFigurException = "Unbekannte Figur, Schreibweise der Klasse überprüfen.";
 
@@ -100,6 +101,7 @@ public class Leinwand extends JFrame{
 		
 		String farbe = getFieldValueString(farbeF, AttributesRechteck.farbe.toString(), figur);
 		Rectangle rec = new Rectangle(xPos, yPos, breite, hoehe);
+		figuren.remove(figur);
 		figuren.add(figur);
 		figurZuShape.put(figur, new ShapeMitFarbe(rec, stringToColor(farbe)));
 		zeichenfläche.repaint();
@@ -189,6 +191,14 @@ public class Leinwand extends JFrame{
 	public int getLeinwandHoehe() {
 		return this.getContentPane().getHeight();
 	}
+	
+	public void drawWithCoordinateSystem() {
+		drawWithCoordinateSystem = true;
+	}
+	
+	public void drawWithoutCoordinateSystem() {
+		drawWithCoordinateSystem = false;
+	}
 
 	private Field getField(Field[] fields, String attribut) {
     	for(Field f : fields) {
@@ -223,7 +233,9 @@ public class Leinwand extends JFrame{
 			g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 			g2d.setColor(Color.white);
 			g2d.fillRect(0, 0, getWidth(), getHeight());
-			drawCoordinateSystem(g2d);
+			if(drawWithCoordinateSystem) {
+				drawCoordinateSystem(g2d);
+			}
 			synchronized (figuren) {
 				for(Object figur : figuren) {
 					figurZuShape.get(figur).draw(g2d);
