@@ -7,6 +7,7 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Line2D;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -30,7 +31,7 @@ public class Leinwand extends JFrame{
 	
 	private static final String rechteckClassName = "Rechteck";
 	private static final String kreisClassName = "Kreis";
-//	private final String dreieckClassName = "Dreieck";
+	private static final String LineClassName = "Linie";
 	
 	private static final int offsetCoordinateSystem = 4;
 	private static final int distanceAxis = 100;
@@ -56,7 +57,7 @@ public class Leinwand extends JFrame{
 	}
 	
 	private Color stringToColor(String farbname)    {
-		switch (farbname) {
+		switch (farbname.toLowerCase()) {
 			case "rot": return Color.red;
 			case "schwarz": return Color.black;
 			case "blau": return Color.blue;
@@ -65,6 +66,7 @@ public class Leinwand extends JFrame{
 			case "gruen": return Color.green;
 			case "lila": return Color.magenta;
 			case "weiss": return Color.white;
+			case "grau": return Color.gray;
 			default: return Color.black;
 		}
     }
@@ -76,12 +78,13 @@ public class Leinwand extends JFrame{
 								    break;
 			case kreisClassName: kreisZeichnen(figur);
 								 break;
-//			case dreieckClassName: dreieckZeichnen(figur);
-//			                       break;
+			case LineClassName: linieZeichnen(figur);
+			                       break;
 			default: throw new IllegalArgumentException(unbekannteFigurException);
 		}
 	}
-	
+
+
 	private void rechteckZeichnen(Object figur) {
 		Field[] fields = figur.getClass().getDeclaredFields();
 		Field xPosF = getField(fields, AttributesRechteck.positionX.toString()); 
@@ -174,6 +177,27 @@ public class Leinwand extends JFrame{
 		figurZuShape.put(figur, new ShapeMitFarbe(kreis, stringToColor(farbe)));
 		zeichenfläche.repaint();
 	}
+	
+	private void linieZeichnen(Object figur) {
+		Field[] fields = figur.getClass().getDeclaredFields();
+		
+		Field FxPosStart = getField(fields, AttributesLinie.xPositionStart.toString()); 
+		Field FyPosStart = getField(fields, AttributesLinie.yPositionStart.toString());
+		Field FxPosEnde = getField(fields, AttributesLinie.xPositionEnde.toString());
+		Field FyPosEnde = getField(fields, AttributesLinie.yPositionEnde.toString());
+		Field Ffarbe = getField(fields, AttributesLinie.farbe.toString());
+		
+		int xPosStart = getFieldValueInt(FxPosStart, AttributesLinie.xPositionStart.toString(), figur);
+		int yPosStart = getFieldValueInt(FyPosStart, AttributesLinie.yPositionStart.toString(), figur);
+		int xPosEnde = getFieldValueInt(FxPosEnde, AttributesLinie.xPositionEnde.toString(), figur);
+		int yPosEnde = getFieldValueInt(FyPosEnde, AttributesLinie.yPositionEnde.toString(), figur);
+		String farbe = getFieldValueString(Ffarbe, AttributesLinie.farbe.toString(), figur);
+		Line2D line = new Line2D.Double(xPosStart, yPosStart, xPosEnde, yPosEnde);
+		figuren.remove(figur);
+		figuren.add(figur);
+		figurZuShape.put(figur, new ShapeMitFarbe(line, stringToColor(farbe)));
+		zeichenfläche.repaint();
+	}
 
 	public void warte(long millisekunden) {
 		try {
@@ -221,6 +245,7 @@ public class Leinwand extends JFrame{
 		public void draw(Graphics2D graphic) {
 			graphic.setColor(farbe);
 			graphic.fill(shape);
+			graphic.draw(shape);
 		}
 	}
 	
